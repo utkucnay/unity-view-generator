@@ -7,7 +7,7 @@ I love the idea of wpf or winforms auto generetaed view classes. I implemented f
 You should create view class 
 
 ```csharp
-public class ...View : MonoGenView 
+public partial class ...View : MonoGenView 
 {
     private void Awake()
     {
