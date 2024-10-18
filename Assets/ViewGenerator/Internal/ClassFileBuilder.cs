@@ -70,6 +70,14 @@ internal class ClassFileBuilder
         classBuilder.AppendLine();
     }
 
+    internal void AppendIndent(int indentOffset = 0)
+    {
+        for (int i = 0; i < indentCount + indentOffset; i++)
+        {
+            classBuilder.Append(indent);
+        }
+    }
+
     private void AppendScope()
     {
         var scopeGenerator = scopeGeneratorStack.Pop();

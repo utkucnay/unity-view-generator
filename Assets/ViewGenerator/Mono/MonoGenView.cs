@@ -1,9 +1,10 @@
+#if UNITY_EDITOR
 using UnityEditor.Compilation;
 using UnityEditor;
+#endif
 using UnityEngine;
 using NaughtyAttributes;
 using System.Linq;
-using UnityEditor.Rendering;
 
 public class MonoGenView : MonoBehaviour, IGenMarker
 {
@@ -39,6 +40,7 @@ public class MonoGenView : MonoBehaviour, IGenMarker
 
     private void Generate()
     {
+        #if UNITY_EDITOR
         var monoGenViews = GetComponentsInChildren<MonoGenView>().Reverse();
         var allMarkers = GetComponentsInChildren<IGenMarker>().Where(x => x.IsInclude).Reverse().ToList();
         allMarkers.Remove(this);
@@ -62,5 +64,6 @@ public class MonoGenView : MonoBehaviour, IGenMarker
 
         AssetDatabase.Refresh();
         CompilationPipeline.RequestScriptCompilation();
+        #endif
     }
 }

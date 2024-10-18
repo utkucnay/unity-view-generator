@@ -209,9 +209,12 @@ internal class FileGeneratorService
         }
 
         index -= 1;
+        while (classText[index] != '\n')
+            index -= 1;
+        
         int indentCount = 0;
 
-        for (int i = index - 1; i > 0; i--)
+        for (int i = index; i > 0; i--)
         {
             if (classText[i] == '{')
                 indentCount++;

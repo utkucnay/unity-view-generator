@@ -10,10 +10,10 @@ namespace Example.Example1
             InitializeComponent();    
         }
 
-    
         private void btnConfirm_Clicked(object sender, EventArgs eventArgs)
         {
-
+            BtnConfirmText.text = "Confirmed";
+            ImgBackground.color = Color.cyan;
         }
-}
+    }
 }

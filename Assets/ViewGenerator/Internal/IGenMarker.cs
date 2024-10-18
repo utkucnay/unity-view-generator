@@ -1,6 +1,6 @@
 using UnityEngine;
 
-internal interface IGenMarker
+public interface IGenMarker
 {
     bool IsInclude { get; }
     string Name { get; }
