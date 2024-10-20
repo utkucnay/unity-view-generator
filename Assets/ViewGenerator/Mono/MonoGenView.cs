@@ -2,68 +2,78 @@
 using UnityEditor.Compilation;
 using UnityEditor;
 #endif
+
 using UnityEngine;
 using NaughtyAttributes;
 using System.Linq;
 
-public class MonoGenView : MonoBehaviour, IGenMarker
+namespace ViewGenerator
 {
-    [SerializeField, ShowIf("IsHaveAnyParentGenView")] private bool isInclude;
-
-    private bool IsHaveAnyParentGenView => GetComponentsInParent<MonoGenView>().Any(x => x != this);
-    public bool IsInclude { get { return isInclude && enabled; } }
-
-    public string Name => name;
-
-    protected virtual void InitializeComponent()
+    public class MonoGenView : MonoBehaviour, IGenMarker
     {
-    }
+        [SerializeField, ShowIf("IsHaveAnyParentGenView")] private bool isInclude;
 
-    public Object GetNativeObject()
-    {
-        return this;
-    }
+        private bool IsHaveAnyParentGenView => GetComponentsInParent<MonoGenView>().Any(x => x != this);
+        public bool IsInclude { get { return isInclude && enabled; } }
 
-    [Button("Generate")]
-    public void RequestGenerate()
-    {
-        var parentMonoGenView = GetComponentsInParent<MonoGenView>();
+        public string Name => name;
 
-        if (parentMonoGenView.Where(x => x != this).Count() != 0)
+        protected virtual void InitializeComponent()
         {
-            parentMonoGenView.Last().RequestGenerate();
-            return;
         }
 
-        Generate();
-    }
-
-    private void Generate()
-    {
-        #if UNITY_EDITOR
-        var monoGenViews = GetComponentsInChildren<MonoGenView>().Reverse();
-        var allMarkers = GetComponentsInChildren<IGenMarker>().Where(x => x.IsInclude).Reverse().ToList();
-        allMarkers.Remove(this);
-
-        foreach (MonoGenView monoGenView in monoGenViews)
+        public Object GetNativeObject()
         {
-            var markers = monoGenView.GetComponentsInChildren<IGenMarker>().Where(x => x.IsInclude).ToList();  
-            markers.Remove(monoGenView);
-            markers = markers.Where(x => allMarkers.Contains(x)).ToList();              
+            return this;
+        }
 
-            FileGeneratorService fileGeneratorHelper = new(monoGenView.GetType(), markers.ToArray());
+#if UNITY_EDITOR
+        bool isGenerating = false;
 
-            fileGeneratorHelper.GenerateFile();
-            fileGeneratorHelper.GenerateEvents();
+        [Button("Generate")]
+        public void RequestGenerate()
+        {
+            var parentMonoGenView = GetComponentsInParent<MonoGenView>();
 
-            foreach (var marker in markers)
+            if (parentMonoGenView.Where(x => x != this).Count() != 0)
             {
-                allMarkers.Remove(marker);
+                parentMonoGenView.Last().RequestGenerate();
+                return;
             }
+
+            Generate();
         }
 
-        AssetDatabase.Refresh();
-        CompilationPipeline.RequestScriptCompilation();
-        #endif
+        private void Generate()
+        {
+            if(isGenerating) return;
+
+            var monoGenViews = GetComponentsInChildren<MonoGenView>().Reverse();
+            var allMarkers = GetComponentsInChildren<IGenMarker>().Where(x => x.IsInclude).Reverse().ToList();
+            allMarkers.Remove(this);
+
+            foreach (MonoGenView monoGenView in monoGenViews)
+            {
+                var markers = monoGenView.GetComponentsInChildren<IGenMarker>().Where(x => x.IsInclude).ToList();  
+                markers.Remove(monoGenView);
+                markers = markers.Where(x => allMarkers.Contains(x)).ToList();              
+
+                FileGeneratorService fileGeneratorHelper = new(monoGenView.GetType(), markers.ToArray());
+
+                fileGeneratorHelper.GenerateFile();
+                fileGeneratorHelper.GenerateEvents();
+
+                foreach (var marker in markers)
+                {
+                    allMarkers.Remove(marker);
+                }
+            }
+
+            isGenerating = true;
+            AssetDatabase.Refresh();
+            CompilationPipeline.RequestScriptCompilation();
+            CompilationPipeline.compilationFinished += _ => { isGenerating = false; };
+        }
+#endif
     }
 }

@@ -1,20 +1,23 @@
 using System;
 
-public struct MarkerParamaterEvent
+namespace ViewGenerator
 {
-    public Type Type;
-    public string Name;
-}
-
-public struct MarkerEventModel
-{
-    public string EventName;
-    public string SubscribeEvent;
-    public MarkerParamaterEvent[] ParamaterEvents;
-
-    public static MarkerParamaterEvent[] DefaultParameterEvents => new MarkerParamaterEvent[]
+    public struct MarkerParamaterEvent
     {
-        new() { Name = "sender", Type = typeof(object) },
-        new() { Name = "eventArgs", Type = typeof(EventArgs) },
-    };
+        public Type Type;
+        public string Name;
+    }
+
+    public struct MarkerEventModel
+    {
+        public string EventName;
+        public string SubscribeEvent;
+        public MarkerParamaterEvent[] ParamaterEvents;
+
+        public static MarkerParamaterEvent[] DefaultParameterEvents => new MarkerParamaterEvent[]
+        {
+            new() { Name = "sender", Type = typeof(object) },
+            new() { Name = "eventArgs", Type = typeof(EventArgs) },
+        };
+    }
 }

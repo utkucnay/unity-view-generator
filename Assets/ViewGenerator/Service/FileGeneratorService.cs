@@ -3,251 +3,257 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
+using ViewGenerator.Internal;
 using UnityEngine;
 
-internal class FileGeneratorService
+namespace ViewGenerator
 {
-    List<UsingNamespaceGenerator> genUsingNamespaces;
-    NamespaceGenerator genNamespace;
-    ClassGenerator genClass;
-    List<FieldGenerator> genFields;
-    List<PropertyGenerator> genProps;
-    MethodGenerator genInitMethod;
-
-    Type classType;
-
-    IGenMarker[] markers;
-
-    internal FileGeneratorService(Type classType, IGenMarker[] markers)
+    public class FileGeneratorService
     {
-        var genTypeObjects = markers.Select(x => x.GetNativeObject().GetType()).ToList();
+        List<UsingNamespaceGenerator> genUsingNamespaces;
+        NamespaceGenerator genNamespace;
+        ClassGenerator genClass;
+        List<FieldGenerator> genFields;
+        List<PropertyGenerator> genProps;
+        MethodGenerator genInitMethod;
 
-        HashSet<string> uniqueNamespaceHashSet = new HashSet<string>()
+        Type classType;
+
+        IGenMarker[] markers;
+
+        public FileGeneratorService(Type classType, IGenMarker[] markers)
         {
-            "UnityEngine",
-            "System.Linq",
-            "System",
-        };
+            var genTypeObjects = markers.Select(x => x.GetNativeObject().GetType()).ToList();
 
-        foreach (var genTypeObject in genTypeObjects)
-        {
-            if(string.IsNullOrEmpty(genTypeObject.Namespace)) continue;
-            uniqueNamespaceHashSet.Add(genTypeObject.Namespace);
-        }
-
-        genUsingNamespaces = new List<UsingNamespaceGenerator>();
-        foreach (var uniqueNamespace in uniqueNamespaceHashSet)
-        {
-            genUsingNamespaces.Add(new UsingNamespaceGenerator(uniqueNamespace));
-        }
-
-        if (!string.IsNullOrEmpty(classType.Namespace))
-        {
-            genNamespace = new NamespaceGenerator(classType.Namespace);
-        }
-
-        if (!string.IsNullOrEmpty(classType.BaseType?.Name))
-        {
-            genClass = new ClassGenerator(classType.Name, classType.BaseType.Name, GenAccess.Public);
-        }
-        else
-        {
-            genClass = new ClassGenerator(classType.Name, GenAccess.Public);
-        }
-
-        genFields = new List<FieldGenerator>();
-        foreach (var marker in markers)
-        {
-            genFields.Add(new FieldGenerator(marker.GetNativeObject().GetType().Name, marker.Name, GenAccess.Private));
-        }
-
-        genProps = new List<PropertyGenerator>();
-        foreach (var marker in markers)
-        {
-            genProps.Add(new PropertyGenerator(marker.GetNativeObject().GetType().Name, marker.Name, GenAccess.Public));
-        }
-
-        genInitMethod = new MethodGenerator("InitializeComponent", GenType.Virtual, GenAccess.Protected);
-
-        this.classType = classType;
-        this.markers = markers;
-    }
-
-    public void GenerateFile()
-    {
-        //TODO: Find file and generete in "Generated Folder"
-        var generetedViewName = classType.Name;
-        var completePath = new ClassPathFinder(generetedViewName).GetNameAndPathMap().First().Value;
-        completePath = Path.Combine(Path.GetDirectoryName(completePath), $"{generetedViewName}.gen.cs");
-
-        if (!File.Exists(completePath))
-        {
-            var fileStream = File.Create(completePath);
-            fileStream.Close();
-            Debug.Log($"File Created at {completePath}");
-        }
-
-        ClassFileBuilder classFileBuilder = new();
-
-        foreach (var genUsingNamespace in genUsingNamespaces)
-        {
-            classFileBuilder.Append(genUsingNamespace);
-        }
-
-        classFileBuilder.AppendEmpty();
-
-        if (genNamespace != null)
-        {
-            classFileBuilder.Append(genNamespace);
-        }
-
-        using (genClass)
-        {
-            classFileBuilder.Append(genClass);
-
-            foreach (var genField in genFields)
+            HashSet<string> uniqueNamespaceHashSet = new HashSet<string>()
             {
-                classFileBuilder.Append(genField);
+                "UnityEngine",
+                "System.Linq",
+                "System",
+                "ViewGenerator",
+            };
+
+            foreach (var genTypeObject in genTypeObjects)
+            {
+                if(string.IsNullOrEmpty(genTypeObject.Namespace)) continue;
+                uniqueNamespaceHashSet.Add(genTypeObject.Namespace);
+            }
+
+            genUsingNamespaces = new List<UsingNamespaceGenerator>();
+            foreach (var uniqueNamespace in uniqueNamespaceHashSet)
+            {
+                genUsingNamespaces.Add(new UsingNamespaceGenerator(uniqueNamespace));
+            }
+
+            if (!string.IsNullOrEmpty(classType.Namespace))
+            {
+                genNamespace = new NamespaceGenerator(classType.Namespace);
+            }
+
+            if (!string.IsNullOrEmpty(classType.BaseType?.Name))
+            {
+                genClass = new ClassGenerator(classType.Name, classType.BaseType.Name, GenAccess.Public);
+            }
+            else
+            {
+                genClass = new ClassGenerator(classType.Name, GenAccess.Public);
+            }
+
+            genFields = new List<FieldGenerator>();
+            foreach (var marker in markers)
+            {
+                genFields.Add(new FieldGenerator(marker.GetNativeObject().GetType().Name, marker.Name, GenAccess.Private));
+            }
+
+            genProps = new List<PropertyGenerator>();
+            foreach (var marker in markers)
+            {
+                genProps.Add(new PropertyGenerator(marker.GetNativeObject().GetType().Name, marker.Name, GenAccess.Public));
+            }
+
+            genInitMethod = new MethodGenerator("InitializeComponent", GenType.Virtual, GenAccess.Protected);
+
+            this.classType = classType;
+            this.markers = markers;
+        }
+
+        public void GenerateFile()
+        {
+            //TODO: Find file and generete in "Generated Folder"
+            var generetedViewName = classType.Name;
+            var completePath = new ClassPathFinder(generetedViewName).GetNameAndPathMap().First().Value;
+            completePath = Path.Combine(Path.GetDirectoryName(completePath), $"{generetedViewName}.gen.cs");
+
+            if (!File.Exists(completePath))
+            {
+                var fileStream = File.Create(completePath);
+                fileStream.Close();
+                Debug.Log($"File Created at {completePath}");
+            }
+
+            ClassFileBuilder classFileBuilder = new();
+
+            foreach (var genUsingNamespace in genUsingNamespaces)
+            {
+                classFileBuilder.Append(genUsingNamespace);
             }
 
             classFileBuilder.AppendEmpty();
 
-            foreach (var genProp in genProps)
+            if (genNamespace != null)
             {
-                classFileBuilder.Append(genProp);
+                classFileBuilder.Append(genNamespace);
             }
 
-            classFileBuilder.AppendEmpty();
-
-
-            using (genInitMethod)
+            using (genClass)
             {
-                classFileBuilder.Append(genInitMethod);
+                classFileBuilder.Append(genClass);
 
-                classFileBuilder.Append(new StartBindingGenerator());
-                classFileBuilder.AppendEmpty();
-
-                foreach (var marker in markers)
+                foreach (var genField in genFields)
                 {
-                    classFileBuilder.Append(new BindingGenerator(marker));
+                    classFileBuilder.Append(genField);
                 }
 
                 classFileBuilder.AppendEmpty();
 
-                foreach (var marker in markers)
+                foreach (var genProp in genProps)
                 {
-                    if (marker is IMarkerEvent markerEvent)
+                    classFileBuilder.Append(genProp);
+                }
+
+                classFileBuilder.AppendEmpty();
+
+
+                using (genInitMethod)
+                {
+                    classFileBuilder.Append(genInitMethod);
+
+                    classFileBuilder.Append(new StartBindingGenerator());
+                    classFileBuilder.AppendEmpty();
+
+                    foreach (var marker in markers)
                     {
-                        foreach (var baseMarkerEvent in markerEvent.GetMarkerEvents())
+                        classFileBuilder.Append(new BindingGenerator(marker));
+                    }
+
+                    classFileBuilder.AppendEmpty();
+
+                    foreach (var marker in markers)
+                    {
+                        if (marker is IMarkerEvent markerEvent)
                         {
-                            classFileBuilder.Append(baseMarkerEvent.SubscribeEvent);
+                            foreach (var baseMarkerEvent in markerEvent.GetMarkerEvents())
+                            {
+                                classFileBuilder.Append(baseMarkerEvent.SubscribeEvent);
+                            }
                         }
                     }
                 }
             }
+
+            genNamespace?.Dispose();
+
+            File.WriteAllText(completePath, classFileBuilder.ToString());
         }
 
-        genNamespace?.Dispose();
-
-        File.WriteAllText(completePath, classFileBuilder.ToString());
-    }
-
-    public void GenerateEvents()
-    {
-        var generetedViewName = classType.Name;
-        var completePath = new ClassPathFinder(generetedViewName).GetNameAndPathMap().First().Value;
-        var eventMarkers = markers.Where(x => x is IMarkerEvent).Select(x => x as IMarkerEvent).ToList();
-
-        if (File.Exists(completePath))
+        public void GenerateEvents()
         {
-            var methods = classType.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Select(x => x.Name).ToList();
+            var generetedViewName = classType.Name;
+            var completePath = new ClassPathFinder(generetedViewName).GetNameAndPathMap().First().Value;
+            var eventMarkers = markers.Where(x => x is IMarkerEvent).Select(x => x as IMarkerEvent).ToList();
+            HashSet<string> eventNameSet = new();
 
-            foreach (var eventMarker in eventMarkers)
+            if (File.Exists(completePath))
             {
-                var eventNames = eventMarker.GetMarkerEvents().Select(x => x.EventName);
+                var methods = classType.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Select(x => x.Name).ToList();
 
-                foreach (var eventName in eventNames)
+                foreach (var eventMarker in eventMarkers)
                 {
-                    if (!methods.Contains(eventName))
+                    var eventNames = eventMarker.GetMarkerEvents().Select(x => x.EventName);
+
+                    foreach (var eventName in eventNames)
                     {
-                        var classText = File.ReadAllText(completePath);
-                        var newClassText = AppendEvent(classText, eventName, eventMarker);
-                        File.WriteAllText(completePath, newClassText);
+                        if (!methods.Contains(eventName) && !eventNameSet.Contains(eventName))
+                        {
+                            var classText = File.ReadAllText(completePath);
+                            var newClassText = AppendEvent(classText, eventName, eventMarker);
+                            File.WriteAllText(completePath, newClassText);
+                            eventNameSet.Add(eventName);
+                        }
                     }
                 }
             }
-        }
-        else
-        {
-            Debug.Log("Didnt find a file");
-        }
-    }
-
-    private string AppendEvent(string classText, string eventName, IMarkerEvent markerEvent)
-    {
-        var className = classType.Name;
-        var classNameIndex = classText.IndexOf(className);
-        var classFirstScopeIndex = classText.IndexOf("{", classNameIndex);
-
-        int scopeCount = 1;
-        int index = classFirstScopeIndex + 1;
-
-        while (scopeCount > 0 && index < classText.Length)
-        {
-            if (classText[index] == '{')
-                scopeCount++;
-            if (classText[index] == '}')
-                scopeCount--;
-
-            index++;
+            else
+            {
+                Debug.Log("Didnt find a file");
+            }
         }
 
-        if (index == classText.Length - 1)
+        private string AppendEvent(string classText, string eventName, IMarkerEvent markerEvent)
         {
+            var className = classType.Name;
+            var classNameIndex = classText.IndexOf(className);
+            var classFirstScopeIndex = classText.IndexOf("{", classNameIndex);
+
+            int scopeCount = 1;
+            int index = classFirstScopeIndex + 1;
+
+            while (scopeCount > 0 && index < classText.Length)
+            {
+                if (classText[index] == '{')
+                    scopeCount++;
+                if (classText[index] == '}')
+                    scopeCount--;
+
+                index++;
+            }
+
+            if (index == classText.Length - 1)
+            {
+                return classText;
+            }
+
+            index -= 1;
+            while (classText[index] != '\n')
+                index -= 1;
+            
+            int indentCount = 0;
+
+            for (int i = index; i > 0; i--)
+            {
+                if (classText[i] == '{')
+                    indentCount++;
+                if (classText[i] == '}')
+                    indentCount--;
+            }
+
+            ClassFileBuilder sb = new(indentCount);
+
+            sb.AppendEmpty();
+
+            using (var eventMethodGenerator = new MethodGenerator(eventName, GenType.None, GenAccess.Private))
+            {
+                var markerEventModel = markerEvent.GetMarkerEvents().Find(x => x.EventName == eventName);
+
+                var paramaterEvents = MarkerEventModel.DefaultParameterEvents;
+
+                if (markerEventModel.ParamaterEvents != null)
+                {
+                    paramaterEvents = markerEventModel.ParamaterEvents;
+                }
+
+                foreach (var paramaterEvent in paramaterEvents)
+                {
+                    eventMethodGenerator.AppendParameter(paramaterEvent);
+                }
+
+                sb.Append(eventMethodGenerator);
+                sb.AppendEmpty();
+            }
+
+            classText = classText.Insert(index, sb.ToString());
+
             return classText;
         }
-
-        index -= 1;
-        while (classText[index] != '\n')
-            index -= 1;
-        
-        int indentCount = 0;
-
-        for (int i = index; i > 0; i--)
-        {
-            if (classText[i] == '{')
-                indentCount++;
-            if (classText[i] == '}')
-                indentCount--;
-        }
-
-        ClassFileBuilder sb = new(indentCount);
-
-        sb.AppendEmpty();
-
-        using (var eventMethodGenerator = new MethodGenerator(eventName, GenType.None, GenAccess.Private))
-        {
-            var markerEventModel = markerEvent.GetMarkerEvents().Find(x => x.EventName == eventName);
-
-            var paramaterEvents = MarkerEventModel.DefaultParameterEvents;
-
-            if (markerEventModel.ParamaterEvents != null)
-            {
-                paramaterEvents = markerEventModel.ParamaterEvents;
-            }
-
-            foreach (var paramaterEvent in paramaterEvents)
-            {
-                eventMethodGenerator.AppendParameter(paramaterEvent);
-            }
-
-            sb.Append(eventMethodGenerator);
-            sb.AppendEmpty();
-        }
-
-        classText = classText.Insert(index, sb.ToString());
-
-        return classText;
     }
 }

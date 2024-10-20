@@ -1,10 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-class RawImageGenMarker : GenMarker
+namespace ViewGenerator
 {
-    public override Object GetNativeObject()
+    [RequireComponent(typeof(RawImage))]
+    public class RawImageGenMarker : GenMarker
     {
-        return GetComponent<RawImage>();
+        public override Object GetNativeObject()
+        {
+            return GetComponent<RawImage>();
+        }
     }
 }

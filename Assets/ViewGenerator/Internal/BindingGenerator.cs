@@ -1,29 +1,30 @@
-using Unity.VisualScripting;
-
-internal class StartBindingGenerator : IGeneratorable
+namespace ViewGenerator.Internal
 {
-    static readonly string START_BINDING = "var markers = GetComponentsInChildren<IGenMarker>().Where(x => x.IsInclude).ToList();";
-
-    public string Generate()
+    internal class StartBindingGenerator : IGeneratorable
     {
-        return START_BINDING;
-    }
-}
+        static readonly string START_BINDING = "var markers = GetComponentsInChildren<IGenMarker>().Where(x => x.IsInclude).ToList();";
 
-internal class BindingGenerator : IGeneratorable
-{
-    static readonly string BINDING_FORMAT = "_{0} = markers.Find(x => x.Name == \"{1}\").GetNativeObject() as {2};";
-
-    IGenMarker genMarker;
-
-    internal BindingGenerator(IGenMarker genMarker)
-    {
-        this.genMarker = genMarker;
+        public string Generate()
+        {
+            return START_BINDING;
+        }
     }
 
-    public string Generate()
+    internal class BindingGenerator : IGeneratorable
     {
-        return string.Format(BINDING_FORMAT, genMarker.Name.FirstCharacterToLower(), 
-            genMarker.Name, genMarker.GetNativeObject().GetType().Name);
+        static readonly string BINDING_FORMAT = "_{0} = markers.Find(x => x.Name == \"{1}\").GetNativeObject() as {2};";
+
+        IGenMarker genMarker;
+
+        internal BindingGenerator(IGenMarker genMarker)
+        {
+            this.genMarker = genMarker;
+        }
+
+        public string Generate()
+        {
+            return string.Format(BINDING_FORMAT, genMarker.Name.FirstCharacterToLower(), 
+                genMarker.Name, genMarker.GetNativeObject().GetType().Name);
+        }
     }
 }

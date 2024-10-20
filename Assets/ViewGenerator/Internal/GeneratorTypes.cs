@@ -1,15 +1,16 @@
-using UnityEngine;
-
-internal enum GenAccess
+namespace ViewGenerator.Internal
 {
-    Public,
-    Protected,
-    Internal,
-    Private,
-}
+    internal enum GenAccess
+    {
+        Public,
+        Protected,
+        Internal,
+        Private,
+    }
 
-internal enum GenType
-{
-    None,
-    Virtual,
+    internal enum GenType
+    {
+        None,
+        Virtual,
+    }
 }

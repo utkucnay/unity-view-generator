@@ -1,16 +1,19 @@
-internal class UsingNamespaceGenerator : IGeneratorable
+namespace ViewGenerator.Internal
 {
-    static string NAMESPACE_FORMAT = "using {0};";
-
-    string namespaceName;
-
-    internal UsingNamespaceGenerator(string namespaceName)
+    internal class UsingNamespaceGenerator : IGeneratorable
     {
-        this.namespaceName = namespaceName;
-    }
+        static string NAMESPACE_FORMAT = "using {0};";
 
-    public string Generate()
-    {
-        return string.Format(NAMESPACE_FORMAT, namespaceName);
+        string namespaceName;
+
+        internal UsingNamespaceGenerator(string namespaceName)
+        {
+            this.namespaceName = namespaceName;
+        }
+
+        public string Generate()
+        {
+            return string.Format(NAMESPACE_FORMAT, namespaceName);
+        }
     }
 }

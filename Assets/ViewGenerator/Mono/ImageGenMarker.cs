@@ -1,10 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ImageGenMarker : GenMarker
+namespace ViewGenerator
 {
-    public override Object GetNativeObject()
+    [RequireComponent(typeof(Image))]
+    public class ImageGenMarker : GenMarker
     {
-        return GetComponent<Image>();
+        public override Object GetNativeObject()
+        {
+            return GetComponent<Image>();
+        }
     }
 }

@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 
-internal interface IMarkerEvent
+namespace ViewGenerator
 {
-    List<MarkerEventModel> GetMarkerEvents();
+    public interface IMarkerEvent
+    {
+        List<MarkerEventModel> GetMarkerEvents();
+    }
 }

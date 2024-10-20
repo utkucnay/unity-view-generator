@@ -1,4 +1,7 @@
-internal interface IGeneratorable
+namespace ViewGenerator.Internal
 {
-    string Generate();
+    internal interface IGeneratorable
+    {
+        string Generate();
+    }
 }

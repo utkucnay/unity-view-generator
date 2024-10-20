@@ -1,25 +1,28 @@
 using System;
 
-internal class NamespaceGenerator : IGeneratorable, IScopeGenerator, IDisposable
+namespace ViewGenerator.Internal
 {
-    internal static string NAMESPACE_FORMAT = "namespace {0}";
-
-    string namespaceName;
-
-    public event Action DisposeEvent;
-
-    internal NamespaceGenerator(string namespaceName)
+    internal class NamespaceGenerator : IGeneratorable, IScopeGenerator, IDisposable
     {
-        this.namespaceName = namespaceName;
-    }
+        internal static string NAMESPACE_FORMAT = "namespace {0}";
 
-    public string Generate()
-    {
-        return string.Format(NAMESPACE_FORMAT, namespaceName);
-    }
+        string namespaceName;
 
-    public void Dispose() 
-    {
-        DisposeEvent?.Invoke();
+        public event Action DisposeEvent;
+
+        internal NamespaceGenerator(string namespaceName)
+        {
+            this.namespaceName = namespaceName;
+        }
+
+        public string Generate()
+        {
+            return string.Format(NAMESPACE_FORMAT, namespaceName);
+        }
+
+        public void Dispose() 
+        {
+            DisposeEvent?.Invoke();
+        }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using ViewGenerator;
 
 namespace Example.Example1
 {
@@ -12,8 +13,8 @@ namespace Example.Example1
 
         private void btnConfirm_Clicked(object sender, EventArgs eventArgs)
         {
-            BtnConfirmText.text = "Confirmed";
-            ImgBackground.color = Color.cyan;
+
         }
+
     }
 }

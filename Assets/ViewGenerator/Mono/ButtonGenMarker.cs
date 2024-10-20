@@ -1,38 +1,39 @@
 using NaughtyAttributes;
 using System.Collections.Generic;
-using System.Text;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Button))]
-public class ButtonGenMarker : GenMarker, IMarkerEvent
+namespace ViewGenerator
 {
-    static readonly string BUTTON_SUBEVENT_FORMAT = "_{0}.onClick.AddListener( () => {1}( _{0}, EventArgs.Empty));";
-
-    [ShowIf("isInclude")]
-    public bool clickButtonEvent = false;
-    [ShowIf("clickButtonEvent")]
-    public string buttonCallbackName = string.Empty;
-
-    public override Object GetNativeObject()
+    [RequireComponent(typeof(Button))]
+    public class ButtonGenMarker : GenMarker, IMarkerEvent
     {
-        return GetComponent<Button>();
-    }
+        static readonly string BUTTON_SUBEVENT_FORMAT = "_{0}.onClick.AddListener( () => {1}( _{0}, EventArgs.Empty));";
 
-    public List<MarkerEventModel> GetMarkerEvents()
-    {
-        List<MarkerEventModel> markerEvents = new();
+        [ShowIf("isInclude")]
+        public bool clickButtonEvent = false;
+        [ShowIf("clickButtonEvent")]
+        public string buttonCallbackName = string.Empty;
 
-        if (clickButtonEvent) 
+        public override Object GetNativeObject()
         {
-            markerEvents.Add(new MarkerEventModel()
-            {
-                EventName = buttonCallbackName,
-                SubscribeEvent = string.Format(BUTTON_SUBEVENT_FORMAT, Name.FirstCharacterToLower(), buttonCallbackName)
-            });
+            return GetComponent<Button>();
         }
 
-        return markerEvents;
+        public List<MarkerEventModel> GetMarkerEvents()
+        {
+            List<MarkerEventModel> markerEvents = new();
+
+            if (clickButtonEvent) 
+            {
+                markerEvents.Add(new MarkerEventModel()
+                {
+                    EventName = buttonCallbackName,
+                    SubscribeEvent = string.Format(BUTTON_SUBEVENT_FORMAT, Name.FirstCharacterToLower(), buttonCallbackName)
+                });
+            }
+
+            return markerEvents;
+        }
     }
 }

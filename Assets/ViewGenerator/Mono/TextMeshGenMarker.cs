@@ -1,12 +1,14 @@
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-[RequireComponent(typeof(TextMeshProUGUI))]
-public class TextMeshGenMarker : GenMarker
+namespace ViewGenerator
 {
-    public override Object GetNativeObject()
+    [RequireComponent(typeof(TextMeshProUGUI))]
+    public class TextMeshGenMarker : GenMarker
     {
-        return GetComponent<TextMeshProUGUI>();
+        public override Object GetNativeObject()
+        {
+            return GetComponent<TextMeshProUGUI>();
+        }
     }
 }

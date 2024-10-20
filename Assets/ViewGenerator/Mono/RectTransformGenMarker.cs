@@ -1,9 +1,13 @@
 using UnityEngine;
 
-public class RectTransformGenMarker : GenMarker
+namespace ViewGenerator
 {
-    public override Object GetNativeObject()
+    [RequireComponent(typeof(RectTransform))]
+    public class RectTransformGenMarker : GenMarker
     {
-        return GetComponent<RectTransform>();
+        public override Object GetNativeObject()
+        {
+            return GetComponent<RectTransform>();
+        }
     }
 }

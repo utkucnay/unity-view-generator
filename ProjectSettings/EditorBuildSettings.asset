@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Examples/Pong/Main.unity
+    path: Assets/Examples/BasicBind/Main.unity
     guid: 2834e45b9dc7c4b459f01f7258eb6127
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

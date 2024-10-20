@@ -1,6 +1,9 @@
 using System;
 
-internal interface IScopeGenerator
+namespace ViewGenerator.Internal
 {
-    event Action DisposeEvent;
+    internal interface IScopeGenerator
+    {
+        event Action DisposeEvent;
+    }
 }

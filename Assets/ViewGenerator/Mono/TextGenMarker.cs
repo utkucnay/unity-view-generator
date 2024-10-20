@@ -1,12 +1,14 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Text))]
-public class TextGenMarker : GenMarker
+namespace ViewGenerator
 {
-    public override Object GetNativeObject()
+    [RequireComponent(typeof(Text))]
+    public class TextGenMarker : GenMarker
     {
-        return GetComponent<Text>();
+        public override Object GetNativeObject()
+        {
+            return GetComponent<Text>();
+        }
     }
 }

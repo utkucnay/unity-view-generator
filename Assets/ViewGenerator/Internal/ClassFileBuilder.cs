@@ -1,92 +1,95 @@
 using System.Collections.Generic;
 using System.Text;
 
-internal class ClassFileBuilder
+namespace ViewGenerator.Internal
 {
-    StringBuilder classBuilder;
-    int indentCount;
-    int indentIndex = 4;
-    string indent = "";
-
-    Stack<ScopeGenerator> scopeGeneratorStack;
-
-    internal ClassFileBuilder()
+    internal class ClassFileBuilder
     {
-        classBuilder = new();
-        scopeGeneratorStack = new();
+        StringBuilder classBuilder;
+        int indentCount;
+        int indentIndex = 4;
+        string indent = "";
 
-        for (int i = 0; i < indentIndex; i++)
+        Stack<ScopeGenerator> scopeGeneratorStack;
+
+        internal ClassFileBuilder()
         {
-            indent += ' ';           
-        }
-    }
+            classBuilder = new();
+            scopeGeneratorStack = new();
 
-    internal ClassFileBuilder(int indentIndex, int indentCount = 4)
-    {
-        classBuilder = new();
-        scopeGeneratorStack = new();
-        this.indentCount = indentCount;
-        this.indentIndex = indentIndex;
-
-        for (int i = 0; i < indentIndex; i++)
-        {
-            indent += ' ';
-        }
-    }
-
-    internal void Append(IGeneratorable generatorable)
-    {
-        for (int i = 0; i < indentCount; i++) 
-        {
-            classBuilder.Append(indent);    
+            for (int i = 0; i < indentIndex; i++)
+            {
+                indent += ' ';           
+            }
         }
 
-        classBuilder.AppendLine(generatorable.Generate());
-
-        if (generatorable is IScopeGenerator scopeGeneratorObject)
+        internal ClassFileBuilder(int indentIndex, int indentCount = 4)
         {
-            var scopeGenerator = new ScopeGenerator();
-            scopeGeneratorObject.DisposeEvent += AppendScope;
+            classBuilder = new();
+            scopeGeneratorStack = new();
+            this.indentCount = indentCount;
+            this.indentIndex = indentIndex;
 
+            for (int i = 0; i < indentIndex; i++)
+            {
+                indent += ' ';
+            }
+        }
+
+        internal void Append(IGeneratorable generatorable)
+        {
+            for (int i = 0; i < indentCount; i++) 
+            {
+                classBuilder.Append(indent);    
+            }
+
+            classBuilder.AppendLine(generatorable.Generate());
+
+            if (generatorable is IScopeGenerator scopeGeneratorObject)
+            {
+                var scopeGenerator = new ScopeGenerator();
+                scopeGeneratorObject.DisposeEvent += AppendScope;
+
+                Append(scopeGenerator);
+
+                scopeGeneratorStack.Push(scopeGenerator);
+                indentCount++;
+            }
+        }
+
+        internal void Append(string line)
+        {
+            for (int i = 0; i < indentCount; i++)
+            {
+                classBuilder.Append(indent);
+            }
+
+            classBuilder.AppendLine(line);
+        }
+
+        internal void AppendEmpty()
+        {
+            classBuilder.AppendLine();
+        }
+
+        internal void AppendIndent(int indentOffset = 0)
+        {
+            for (int i = 0; i < indentCount + indentOffset; i++)
+            {
+                classBuilder.Append(indent);
+            }
+        }
+
+        private void AppendScope()
+        {
+            var scopeGenerator = scopeGeneratorStack.Pop();
+            indentCount--;
             Append(scopeGenerator);
-
-            scopeGeneratorStack.Push(scopeGenerator);
-            indentCount++;
         }
-    }
 
-    internal void Append(string line)
-    {
-        for (int i = 0; i < indentCount; i++)
+        public override string ToString()
         {
-            classBuilder.Append(indent);
+            return classBuilder.ToString();
         }
-
-        classBuilder.AppendLine(line);
-    }
-
-    internal void AppendEmpty()
-    {
-        classBuilder.AppendLine();
-    }
-
-    internal void AppendIndent(int indentOffset = 0)
-    {
-        for (int i = 0; i < indentCount + indentOffset; i++)
-        {
-            classBuilder.Append(indent);
-        }
-    }
-
-    private void AppendScope()
-    {
-        var scopeGenerator = scopeGeneratorStack.Pop();
-        indentCount--;
-        Append(scopeGenerator);
-    }
-
-    public override string ToString()
-    {
-        return classBuilder.ToString();
     }
 }
